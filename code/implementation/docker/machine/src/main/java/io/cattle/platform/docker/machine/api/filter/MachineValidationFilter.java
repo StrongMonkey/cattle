@@ -75,12 +75,21 @@ public class MachineValidationFilter extends AbstractDefaultResourceManagerFilte
         String extracted = DataAccessor.fromMap(data).withKey(MachineConstants.EXTRACTED_CONFIG_FIELD).as(String.class);
         if (extracted != null) {
             try {
+                log.info("extracted config is " + extracted);
                 extracted = secretsService.encrypt(ApiUtils.getPolicy().getAccountId(), extracted);
+                if (extracted != null) {
+                    log.info("extracted config is " + extracted);
+                } else {
+                    log.info("extracted config is null");
+                }
+                
             } catch (IOException e) {
                 log.error("Failed to encrypt machine secrets", e);
                 throw new ClientVisibleException(ResponseCodes.INTERNAL_SERVER_ERROR, "FailedEncryption");
             }
             data.put(MachineConstants.EXTRACTED_CONFIG_FIELD, extracted);
+        } else {
+            log.info("extracted config is null from api requests");
         }
         return super.update(type, id, request, next);
     }

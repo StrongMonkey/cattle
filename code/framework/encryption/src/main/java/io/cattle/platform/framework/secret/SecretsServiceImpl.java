@@ -35,6 +35,8 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.entity.ContentType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.netflix.config.DynamicStringProperty;
 import com.nimbusds.jose.util.StandardCharset;
@@ -47,6 +49,7 @@ public class SecretsServiceImpl implements SecretsService {
     private static final String BULK_PATH = "/v1-secrets/secrets/rewrap?action=bulk";
     private static final DynamicStringProperty SECRETS_URL = ArchaiusUtil.getString("secrets.url");
     private static final DynamicStringProperty SECRETS_BACKEND = ArchaiusUtil.getString("secrets.backend");
+    private static final Logger log = LoggerFactory.getLogger(SecretsServiceImpl.class);
 
     @Inject
     SecretDao secretDao;
@@ -68,6 +71,7 @@ public class SecretsServiceImpl implements SecretsService {
                 @Override
                 public String handleResponse(HttpResponse response) throws ClientProtocolException, IOException {
                     int statusCode = response.getStatusLine().getStatusCode();
+                    log.info("status code is " + statusCode);
                     if (statusCode >= 300) {
                         throw new IOException("Failed to encrypt secret :" + response.getStatusLine().getReasonPhrase());
                     }
