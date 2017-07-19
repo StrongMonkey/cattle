@@ -36,6 +36,8 @@ import org.jooq.TableField;
 import org.jooq.UpdatableRecord;
 import org.jooq.impl.DSL;
 import org.jooq.impl.DefaultDSLContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JooqObjectManager extends AbstractObjectManager {
 
@@ -47,6 +49,7 @@ public class JooqObjectManager extends AbstractObjectManager {
     Configuration configuration;
     Configuration lockingConfiguration;
     TransactionDelegate transactionDelegate;
+    private static final Logger log = LoggerFactory.getLogger(JooqObjectManager.class);
 
     @SuppressWarnings("unchecked")
     @Override
@@ -129,7 +132,9 @@ public class JooqObjectManager extends AbstractObjectManager {
         final List<UpdatableRecord<?>> pending = new ArrayList<>();
         Map<Object, Object> toWrite = toObjectsToWrite(obj, values);
         setFields(schema, obj, toWrite, pending);
-
+        log.info("pending " + pending.toString());
+        
+        
         if (pending.size() == 1) {
             persistRecord(pending.get(0));
         } else if (pending.size() > 1) {

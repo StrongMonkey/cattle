@@ -159,12 +159,15 @@ public abstract class AbstractObjectResourceManager extends AbstractBaseResource
             }
 
         }
-
+        log.info("filteredUpdates" + filteredUpdates.toString());
         Object result = objectManager.setFields(schema, obj, filteredUpdates);
         if (schedule) {
             filteredUpdates.put("old", existingValues);
             objectProcessManager.scheduleStandardProcess(StandardProcess.UPDATE, obj, filteredUpdates);
             result = objectManager.reload(result);
+        }
+        if (obj != null && obj.toString() != null) {
+            log.info("obj", obj.toString());
         }
 
         return result;
