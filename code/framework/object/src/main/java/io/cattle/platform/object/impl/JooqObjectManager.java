@@ -26,6 +26,7 @@ import javax.inject.Inject;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jooq.Configuration;
 import org.jooq.DSLContext;
 import org.jooq.ForeignKey;
@@ -132,8 +133,6 @@ public class JooqObjectManager extends AbstractObjectManager {
         final List<UpdatableRecord<?>> pending = new ArrayList<>();
         Map<Object, Object> toWrite = toObjectsToWrite(obj, values);
         setFields(schema, obj, toWrite, pending);
-        log.info("pending " + pending.toString());
-        
         
         if (pending.size() == 1) {
             persistRecord(pending.get(0));
@@ -157,17 +156,31 @@ public class JooqObjectManager extends AbstractObjectManager {
         if (schema == null) {
             schema = schemaFactory.getSchema(type);
         }
+        if (StringUtils.equals("machine", type)) {
+            log.info("toWrite" + toWrite.toString());
+        }
 
         UpdatableRecord<?> record = JooqUtils.getRecordObject(obj);
 
         for (Map.Entry<Object, Object> entry : toWrite.entrySet()) {
             Object key = entry.getKey();
             Object value = entry.getValue();
+            if (StringUtils.equals("machine", type)) {
+                log.info("key" + key.toString());
+                log.info("value" + value.toString());
+                log.info("record" + record.toString());
+            }
             if (key instanceof String) {
                 String name = (String) key;
                 if (name.startsWith(ObjectMetaDataManager.APPEND) && value instanceof Map<?, ?>) {
                     name = name.substring(ObjectMetaDataManager.APPEND.length());
                     Object mapObj = ObjectUtils.getPropertyIgnoreErrors(obj, name);
+                    if (StringUtils.equals("machine", type)) {
+                        log.info("name" + name);
+                        log.info("mapObj" + mapObj);
+                        log.info("schema" + schema.toString());
+                        log.info("resourcefields", schema.getResourceFields().toString());
+                    }
                     if (mapObj instanceof Map<?, ?>) {
                         mapObj = mergeMap((Map<Object, Object>) value, (Map<Object, Object>) mapObj);
                     }
